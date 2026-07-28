@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["ExpoDeviceFlagsModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.deviceflags.ExpoDeviceFlagsModule"]
+  }
+}

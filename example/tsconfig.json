@@ -1,0 +1,10 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@bradford-tech/expo-device-flags": ["../src/index"],
+      "@bradford-tech/expo-device-flags/*": ["../src/*"]
+    }
+  }
+}
