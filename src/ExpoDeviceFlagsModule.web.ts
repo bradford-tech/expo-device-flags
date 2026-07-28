@@ -1,6 +1,19 @@
-import { registerWebModule, NativeModule } from 'expo';
+import { NativeModule, registerWebModule } from 'expo';
 
-// ExpoDeviceFlagsModule is not available on the web platform.
-class ExpoDeviceFlagsModule extends NativeModule<{}> {}
+import { createUnsupportedError } from './errors';
+
+// DeviceCheck does not exist on the web platform; every member reports
+// unsupported so consumers get the same API shape everywhere.
+class ExpoDeviceFlagsModule extends NativeModule {
+  isSupported = false;
+
+  async isSupportedAsync(): Promise<boolean> {
+    return false;
+  }
+
+  async requestDeviceTokenAsync(): Promise<string> {
+    throw createUnsupportedError();
+  }
+}
 
 export default registerWebModule(ExpoDeviceFlagsModule, 'ExpoDeviceFlagsModule');
