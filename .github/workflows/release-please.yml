@@ -17,8 +17,11 @@ jobs:
       contents: write
       pull-requests: write
     outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
-      tag_name: ${{ steps.release.outputs.tag_name }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
+      # All per-path outputs (e.g. "packages/expo-device-flags--tag_name"),
+      # serialized so the publish matrix can index into them by path.
+      release_outputs: ${{ toJSON(steps.release.outputs) }}
     steps:
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         id: release
@@ -28,9 +31,12 @@ jobs:
 
   publish:
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      matrix:
+        path: ${{ fromJSON(needs.release-please.outputs.paths_released) }}
     permissions:
       contents: read
       # Required for npm trusted publishing (OIDC) — no NPM_TOKEN needed
@@ -39,7 +45,7 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
           # Publish exactly what the release tagged, not main HEAD
-          ref: ${{ needs.release-please.outputs.tag_name }}
+          ref: ${{ fromJSON(needs.release-please.outputs.release_outputs)[format('{0}--tag_name', matrix.path)] }}
 
       - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
@@ -48,9 +54,17 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      # prepare script builds the package during install
+      # prepare scripts build each workspace during install
       - run: npm ci
-      - run: npm run lint
-      - run: npm test
+      - run: npm run lint --workspaces --if-present
+      - run: npm test --workspaces --if-present
 
-      - run: npm publish --access public
+      - name: Publish (skips private packages)
+        env:
+          PKG_PATH: ${{ matrix.path }}
+        run: |
+          if [ "$(node -p "require('./' + process.env.PKG_PATH + '/package.json').private === true")" = "true" ]; then
+            echo "Skipping private package $PKG_PATH"
+            exit 0
+          fi
+          npm publish --workspace "./$PKG_PATH" --access public
