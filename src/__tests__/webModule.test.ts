@@ -1,9 +1,9 @@
+import WebModule from '../ExpoDeviceFlagsModule.web';
+
 jest.mock('expo', () => ({
   NativeModule: class {},
   registerWebModule: (moduleClass: any) => new moduleClass(),
 }));
-
-import WebModule from '../ExpoDeviceFlagsModule.web';
 
 describe('web stub', () => {
   it('reports isSupported = false', () => {

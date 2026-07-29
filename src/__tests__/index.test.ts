@@ -1,3 +1,6 @@
+import mockNativeModule from '../ExpoDeviceFlagsModule';
+import * as ExpoDeviceFlags from '../index';
+
 jest.mock('../ExpoDeviceFlagsModule', () => ({
   __esModule: true,
   default: {
@@ -6,9 +9,6 @@ jest.mock('../ExpoDeviceFlagsModule', () => ({
     requestDeviceTokenAsync: jest.fn(async () => 'dGVzdC10b2tlbg=='),
   },
 }));
-
-import mockNativeModule from '../ExpoDeviceFlagsModule';
-import * as ExpoDeviceFlags from '../index';
 
 describe('public API', () => {
   it('exposes isSupported from the native module', () => {
@@ -21,9 +21,7 @@ describe('public API', () => {
   });
 
   it('resolves requestDeviceTokenAsync with the native base64 token', async () => {
-    await expect(ExpoDeviceFlags.requestDeviceTokenAsync()).resolves.toBe(
-      'dGVzdC10b2tlbg=='
-    );
+    await expect(ExpoDeviceFlags.requestDeviceTokenAsync()).resolves.toBe('dGVzdC10b2tlbg==');
     expect(mockNativeModule.requestDeviceTokenAsync).toHaveBeenCalledTimes(1);
   });
 });
