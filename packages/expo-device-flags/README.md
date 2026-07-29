@@ -27,8 +27,10 @@ write two per-device bits that persist across reinstalls.
 3. Apple stores two bits per device, per developer account — they survive app
    reinstalls and even device transfers.
 
-A companion server-side package handling step 2 (JWT signing, endpoint
-switching, Apple's error semantics) is planned separately.
+The companion server-side package handling step 2 —
+[`@bradford-tech/device-flags-server`](https://github.com/bradford-tech/expo-device-flags/tree/main/packages/device-flags-server)
+(JWT signing, endpoint switching, Apple's error semantics) — is in
+development in this repo and not yet published.
 
 ## Installation
 

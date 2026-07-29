@@ -8,7 +8,7 @@ Persistent per-device flags that survive app reinstalls.
 | [`@bradford-tech/device-flags-server`](packages/device-flags-server) | in development | Server half: DeviceCheck JWT signing and two-bits query/update. |
 
 See each package's README for usage. Releases are cut per package by
-release-please; tags look like `expo-device-flags-v0.2.0`.
+release-please; tags look like `expo-device-flags-v<version>`.
 
 ## Development
 

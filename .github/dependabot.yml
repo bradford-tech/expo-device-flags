@@ -21,8 +21,15 @@ updates:
 
   # The published package has no runtime dependencies, so everything here is
   # tooling. `chore:` keeps these out of the release-please changelog.
+  # The workspace lockfile lives at the repo root; listing only a workspace
+  # subdirectory is known to produce PRs that update the manifest without the
+  # root package-lock.json (dependabot-core#4993), which then fail `npm ci`.
+  # Listing "/" alongside the packages keeps the lockfile in scope. Watch the
+  # first PR this opens and confirm package-lock.json is included.
   - package-ecosystem: npm
-    directory: /packages/expo-device-flags
+    directories:
+      - /
+      - /packages/*
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
