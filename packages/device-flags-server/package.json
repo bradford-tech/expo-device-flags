@@ -1,6 +1,6 @@
 {
   "name": "@bradford-tech/device-flags-server",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Server-side companion for @bradford-tech/expo-device-flags: ES256-authenticated query/update of Apple DeviceCheck's two per-device bits.",
   "type": "module",
   "main": "build/index.js",
