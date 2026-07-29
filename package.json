@@ -4,6 +4,14 @@
   "description": "Persistent per-device flags that survive reinstalls, backed by Apple DeviceCheck and Play Integrity device recall.",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "files": [
+    "build",
+    "android/build.gradle",
+    "android/src/main",
+    "ios",
+    "src",
+    "expo-module.config.json"
+  ],
   "scripts": {
     "build": "node internal/module_scripts/build.js",
     "clean": "node internal/module_scripts/clean.js",
