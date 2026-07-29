@@ -1,3 +1,4 @@
 {
-  ".": "0.2.0"
+  "packages/expo-device-flags": "0.2.0",
+  "packages/device-flags-server": "0.0.0"
 }
