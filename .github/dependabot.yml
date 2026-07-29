@@ -56,6 +56,21 @@ updates:
         update-types: [version-update:semver-major, version-update:semver-minor, version-update:semver-patch]
       - dependency-name: "@types/react"
         update-types: [version-update:semver-major, version-update:semver-minor, version-update:semver-patch]
+      # Majors below are gated by packages above, via dependencies the manifest
+      # does not express: jest-expo 57 pulls jest 29.x internals, and
+      # eslint-config-universe bundles eslint-plugin-react / @typescript-eslint
+      # versions that lag eslint and typescript majors — its `eslint: ">=8.10"`
+      # peer range does not reflect that. Each of these opened a red PR on the
+      # first Dependabot run. Take them deliberately, with the package that
+      # gates them; minors and patches still flow into the weekly group.
+      - dependency-name: eslint
+        update-types: [version-update:semver-major]
+      - dependency-name: typescript
+        update-types: [version-update:semver-major]
+      - dependency-name: jest
+        update-types: [version-update:semver-major]
+      - dependency-name: "@types/jest"
+        update-types: [version-update:semver-major]
 
   # example/ is deliberately omitted: every one of its dependencies is pinned by
   # the Expo SDK, so version updates there would be noise. It is still covered by
