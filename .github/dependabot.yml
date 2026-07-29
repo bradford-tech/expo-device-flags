@@ -22,7 +22,7 @@ updates:
   # The published package has no runtime dependencies, so everything here is
   # tooling. `chore:` keeps these out of the release-please changelog.
   - package-ecosystem: npm
-    directory: /
+    directory: /packages/expo-device-flags
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
@@ -72,6 +72,6 @@ updates:
       - dependency-name: "@types/jest"
         update-types: [version-update:semver-major]
 
-  # example/ is deliberately omitted: every one of its dependencies is pinned by
+  # example/ (inside packages/expo-device-flags) is deliberately omitted: every one of its dependencies is pinned by
   # the Expo SDK, so version updates there would be noise. It is still covered by
   # the dependency graph, which drives security alerts independently of this file.
