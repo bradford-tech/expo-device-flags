@@ -87,12 +87,27 @@ export function createDeviceCheckClient(config: DeviceCheckClientConfig): Device
       }
     },
 
-    async updateTwoBits(): Promise<void> {
-      throw new Error('not implemented'); // Task 4
+    async updateTwoBits(
+      deviceToken: string,
+      bits: { bit0?: boolean; bit1?: boolean }
+    ): Promise<void> {
+      if (bits.bit0 === undefined && bits.bit1 === undefined) {
+        throw new TypeError('updateTwoBits requires at least one of bit0 or bit1');
+      }
+      const fields: Record<string, boolean> = {};
+      if (bits.bit0 !== undefined) fields.bit0 = bits.bit0;
+      if (bits.bit1 !== undefined) fields.bit1 = bits.bit1;
+      const response = await post('/v1/update_two_bits', deviceToken, fields);
+      if (!response.ok) {
+        throw mapResponseToError(response.status, await response.text());
+      }
     },
 
-    async validateDeviceToken(): Promise<void> {
-      throw new Error('not implemented'); // Task 4
+    async validateDeviceToken(deviceToken: string): Promise<void> {
+      const response = await post('/v1/validate_device_token', deviceToken);
+      if (!response.ok) {
+        throw mapResponseToError(response.status, await response.text());
+      }
     },
   };
 }

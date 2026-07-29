@@ -112,3 +112,61 @@ describe('queryTwoBits', () => {
     await expect(makeClient(impl).queryTwoBits('')).rejects.toThrow(TypeError);
   });
 });
+
+describe('updateTwoBits', () => {
+  const ok = () => new Response('', { status: 200 });
+
+  it('POSTs only the provided bits to the update endpoint', async () => {
+    const { impl, calls } = stubFetch(ok);
+    await makeClient(impl).updateTwoBits('dGVzdA==', { bit0: true });
+    expect(calls[0].url).toBe('https://api.development.devicecheck.apple.com/v1/update_two_bits');
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.bit0).toBe(true);
+    expect('bit1' in body).toBe(false);
+  });
+
+  it('sends both bits when both are provided', async () => {
+    const { impl, calls } = stubFetch(ok);
+    await makeClient(impl).updateTwoBits('dGVzdA==', { bit0: false, bit1: true });
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.bit0).toBe(false);
+    expect(body.bit1).toBe(true);
+  });
+
+  it('resolves void on HTTP 200', async () => {
+    const { impl } = stubFetch(ok);
+    await expect(
+      makeClient(impl).updateTwoBits('dGVzdA==', { bit1: true })
+    ).resolves.toBeUndefined();
+  });
+
+  it('throws TypeError locally when neither bit is provided', async () => {
+    const { impl, calls } = stubFetch(ok);
+    await expect(makeClient(impl).updateTwoBits('dGVzdA==', {})).rejects.toThrow(TypeError);
+    expect(calls).toHaveLength(0);
+  });
+
+  it('rejects with a mapped error on Apple errors', async () => {
+    const { impl } = stubFetch(() => new Response('Bad Bits', { status: 400 }));
+    await expect(makeClient(impl).updateTwoBits('dGVzdA==', { bit0: true })).rejects.toMatchObject({
+      code: 'ERR_BAD_BITS',
+    });
+  });
+});
+
+describe('validateDeviceToken', () => {
+  it('POSTs to the validate endpoint and resolves void on 200', async () => {
+    const { impl, calls } = stubFetch(() => new Response('', { status: 200 }));
+    await expect(makeClient(impl).validateDeviceToken('dGVzdA==')).resolves.toBeUndefined();
+    expect(calls[0].url).toBe(
+      'https://api.development.devicecheck.apple.com/v1/validate_device_token'
+    );
+  });
+
+  it('rejects with a mapped error on invalid tokens', async () => {
+    const { impl } = stubFetch(() => new Response('Bad Device Token', { status: 400 }));
+    await expect(makeClient(impl).validateDeviceToken('dGVzdA==')).rejects.toMatchObject({
+      code: 'ERR_BAD_DEVICE_TOKEN',
+    });
+  });
+});
