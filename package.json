@@ -1,7 +1,7 @@
 {
   "name": "@bradford-tech/expo-device-flags",
   "version": "0.1.0",
-  "description": "Persistent per-device flags that survive reinstalls, backed by Apple DeviceCheck and Play Integrity device recall.",
+  "description": "Persistent per-device flags that survive reinstalls, backed by Apple DeviceCheck (Android via Play Integrity device recall planned).",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "scripts": {

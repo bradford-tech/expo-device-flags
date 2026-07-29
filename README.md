@@ -60,7 +60,9 @@ if (isSupported) {
 
 ### `isSupported: boolean`
 
-Synchronous constant. `true` only on physical iOS devices.
+Synchronous constant. `true` only on physical Apple devices (the module's
+Apple target also covers macOS and tvOS app targets, where `DCDevice` works on
+real hardware too).
 
 ### `isSupportedAsync(): Promise<boolean>`
 
@@ -82,6 +84,10 @@ Rejects with an `Error` whose `code` property is one of:
 | `ERR_DEVICE_CHECK_INVALID_INPUT` | DeviceCheck rejected the request as invalid. |
 | `ERR_DEVICE_CHECK_SERVER_UNAVAILABLE` | Apple's servers are unreachable; retry later. |
 | `ERR_DEVICE_CHECK_UNKNOWN` | Unknown system failure. |
+
+`ERR_DEVICE_CHECK_INVALID_INPUT` is not expected in practice: `generateToken`
+takes no caller-supplied input, so there is nothing for your code to fix if it
+ever fires. It exists to mirror Apple's `DCError` cases one-to-one.
 
 ### `DeviceCheckErrorCode`
 
