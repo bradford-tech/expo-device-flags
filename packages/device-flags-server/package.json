@@ -1,0 +1,12 @@
+{
+  "name": "@bradford-tech/device-flags-server",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Server-side companion for @bradford-tech/expo-device-flags: exchanges DeviceCheck tokens with Apple's query/update two-bits API. In development — not yet published.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bradford-tech/expo-device-flags.git",
+    "directory": "packages/device-flags-server"
+  },
+  "license": "MIT"
+}

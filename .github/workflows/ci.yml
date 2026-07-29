@@ -24,7 +24,7 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      # prepare script builds the package during install
+      # prepare scripts build each workspace during install
       - run: npm ci
-      - run: npm run lint
-      - run: npm test
+      - run: npm run lint --workspaces --if-present
+      - run: npm test --workspaces --if-present
