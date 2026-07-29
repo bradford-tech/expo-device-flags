@@ -1,12 +1,47 @@
 {
   "name": "@bradford-tech/device-flags-server",
   "version": "0.0.0",
-  "private": true,
-  "description": "Server-side companion for @bradford-tech/expo-device-flags: exchanges DeviceCheck tokens with Apple's query/update two-bits API. In development — not yet published.",
+  "description": "Server-side companion for @bradford-tech/expo-device-flags: ES256-authenticated query/update of Apple DeviceCheck's two per-device bits.",
+  "type": "module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./build/index.d.ts",
+      "default": "./build/index.js"
+    }
+  },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "clean": "rm -rf build",
+    "lint": "eslint src/ test/",
+    "test": "vitest run",
+    "test:integration": "npm run build && node scripts/integration.mjs",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "devicecheck",
+    "apple",
+    "device-flags",
+    "expo"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/bradford-tech/expo-device-flags.git",
     "directory": "packages/device-flags-server"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "eslint": "~9.39.4",
+    "eslint-config-universe": "^15.2.0",
+    "typescript": "~6.0.3",
+    "vitest": "^4.1.10"
+  }
 }
