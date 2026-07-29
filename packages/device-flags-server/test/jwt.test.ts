@@ -39,7 +39,7 @@ describe('signDeviceCheckJwt', () => {
     const valid = await crypto.subtle.verify(
       { name: 'ECDSA', hash: 'SHA-256' },
       publicKey,
-      signatureBytes,
+      new Uint8Array(signatureBytes),
       new TextEncoder().encode(`${header}.${payload}`)
     );
     expect(valid).toBe(true);

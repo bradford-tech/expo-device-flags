@@ -1,4 +1,4 @@
-import { mapResponseToError } from './errors.js';
+import { DeviceCheckServerError, mapResponseToError } from './errors.js';
 import { importDeviceCheckKey, signDeviceCheckJwt } from './jwt.js';
 import type { DeviceCheckClient, DeviceCheckClientConfig, QueryTwoBitsResult } from './types.js';
 
@@ -45,19 +45,33 @@ export function createDeviceCheckClient(config: DeviceCheckClientConfig): Device
   ): Promise<Response> {
     assertDeviceToken(deviceToken);
     const jwt = await signDeviceCheckJwt({ teamId, keyId, key: await getKey() });
-    return fetchImpl(`${BASE_URLS[environment]}${path}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        device_token: deviceToken,
-        transaction_id: crypto.randomUUID(),
-        timestamp: Date.now(),
-        ...extraFields,
-      }),
-    });
+    try {
+      return await fetchImpl(`${BASE_URLS[environment]}${path}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${jwt}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          device_token: deviceToken,
+          transaction_id: crypto.randomUUID(),
+          timestamp: Date.now(),
+          ...extraFields,
+        }),
+      });
+    } catch (cause) {
+      // Keep the "every failure is a DeviceCheckServerError" invariant:
+      // transport-level failures (DNS, reset, timeout) are the most
+      // retryable class and must be visible to consumers switching on code.
+      throw new DeviceCheckServerError(
+        'ERR_NETWORK',
+        0,
+        `Network request failed: ${String(cause)}`,
+        {
+          cause,
+        }
+      );
+    }
   }
 
   return {
@@ -67,24 +81,36 @@ export function createDeviceCheckClient(config: DeviceCheckClientConfig): Device
       if (!response.ok) {
         throw mapResponseToError(response.status, body);
       }
-      // A 200 with a non-JSON body ("Bit State Not Found" / "Failed to find
-      // bit state") means Apple has never stored bits for this device — a
-      // success case, not an error.
+      let parsed: unknown;
       try {
-        const parsed = JSON.parse(body) as {
-          bit0: boolean;
-          bit1: boolean;
-          last_update_time: string;
-        };
+        parsed = JSON.parse(body);
+      } catch {
+        parsed = undefined;
+      }
+      if (
+        typeof parsed === 'object' &&
+        parsed !== null &&
+        typeof (parsed as { bit0?: unknown }).bit0 === 'boolean' &&
+        typeof (parsed as { bit1?: unknown }).bit1 === 'boolean' &&
+        typeof (parsed as { last_update_time?: unknown }).last_update_time === 'string'
+      ) {
+        const bits = parsed as { bit0: boolean; bit1: boolean; last_update_time: string };
         return {
           found: true,
-          bit0: parsed.bit0,
-          bit1: parsed.bit1,
-          lastUpdateTime: parsed.last_update_time,
+          bit0: bits.bit0,
+          bit1: bits.bit1,
+          lastUpdateTime: bits.last_update_time,
         };
-      } catch {
+      }
+      // Apple signals "device never seen" with a 200 text body — documented
+      // as "Bit State Not Found", observed as "Failed to find bit state".
+      // This is a success case, not an error. Anything else on 200 is
+      // response drift and must fail loud, not fall through to found: false
+      // (which consumers treat as "grant a fresh trial").
+      if (/bit state/i.test(body)) {
         return { found: false };
       }
+      throw new DeviceCheckServerError('ERR_UNEXPECTED_RESPONSE', response.status, body);
     },
 
     async updateTwoBits(

@@ -44,10 +44,13 @@ if (!state.found) {
 - `validateDeviceToken(deviceToken)` — confirms the token belongs to your
   team without touching the bits.
 
-Failures reject with `DeviceCheckServerError` carrying `code` (one of the
-`ERR_*` values mirroring Apple's response table), `status`, and
-`appleMessage`. `ERR_TOO_MANY_REQUESTS` and `ERR_SERVICE_UNAVAILABLE` are the
-retryable ones; retry policy is deliberately left to your infrastructure.
+Failures reject with `DeviceCheckServerError` carrying `code`, `status`, and
+`appleMessage`. The codes mirror Apple's response table, plus `ERR_NETWORK`
+for transport-level failures (DNS, connection reset, timeout — `status` is
+`0` and `cause` holds the underlying error) and `ERR_UNEXPECTED_RESPONSE`
+for unrecognized responses. `ERR_NETWORK`, `ERR_TOO_MANY_REQUESTS`, and
+`ERR_SERVICE_UNAVAILABLE` are the retryable ones; retry policy is
+deliberately left to your infrastructure.
 
 ## Notes
 

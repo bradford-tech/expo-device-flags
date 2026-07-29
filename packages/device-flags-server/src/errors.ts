@@ -11,15 +11,21 @@ export type DeviceCheckServerErrorCode =
   | 'ERR_TOO_MANY_REQUESTS'
   | 'ERR_SERVER_ERROR'
   | 'ERR_SERVICE_UNAVAILABLE'
-  | 'ERR_UNEXPECTED_RESPONSE';
+  | 'ERR_UNEXPECTED_RESPONSE'
+  | 'ERR_NETWORK';
 
 export class DeviceCheckServerError extends Error {
   code: DeviceCheckServerErrorCode;
   status: number;
   appleMessage: string;
 
-  constructor(code: DeviceCheckServerErrorCode, status: number, appleMessage: string) {
-    super(`DeviceCheck request failed (HTTP ${status}): ${appleMessage || code}`);
+  constructor(
+    code: DeviceCheckServerErrorCode,
+    status: number,
+    appleMessage: string,
+    options?: { cause?: unknown }
+  ) {
+    super(`DeviceCheck request failed (HTTP ${status}): ${appleMessage || code}`, options);
     this.name = 'DeviceCheckServerError';
     this.code = code;
     this.status = status;

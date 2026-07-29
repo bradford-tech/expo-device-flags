@@ -21,7 +21,7 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rm -rf build",
     "lint": "eslint src/ test/",
-    "test": "vitest run",
+    "test": "tsc --noEmit -p tsconfig.test.json && vitest run",
     "test:integration": "npm run build && node scripts/integration.mjs",
     "prepare": "npm run build"
   },
@@ -36,6 +36,11 @@
     "url": "https://github.com/bradford-tech/expo-device-flags.git",
     "directory": "packages/device-flags-server"
   },
+  "bugs": {
+    "url": "https://github.com/bradford-tech/expo-device-flags/issues"
+  },
+  "author": "sbs44 <83440025+sbs44@users.noreply.github.com> (https://github.com/sbs44)",
+  "homepage": "https://github.com/bradford-tech/expo-device-flags/tree/main/packages/device-flags-server#readme",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^26.1.2",

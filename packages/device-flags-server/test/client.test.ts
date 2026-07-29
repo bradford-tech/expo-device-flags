@@ -170,3 +170,57 @@ describe('validateDeviceToken', () => {
     });
   });
 });
+
+describe('queryTwoBits response hardening', () => {
+  it('accepts the documented "Bit State Not Found" spelling as found: false', async () => {
+    const { impl } = stubFetch(() => new Response('Bit State Not Found', { status: 200 }));
+    await expect(makeClient(impl).queryTwoBits('dGVzdA==')).resolves.toEqual({ found: false });
+  });
+
+  it('rejects a 200 JSON body missing boolean bits with ERR_UNEXPECTED_RESPONSE', async () => {
+    const { impl } = stubFetch(() => new Response('{}', { status: 200 }));
+    await expect(makeClient(impl).queryTwoBits('dGVzdA==')).rejects.toMatchObject({
+      name: 'DeviceCheckServerError',
+      code: 'ERR_UNEXPECTED_RESPONSE',
+      status: 200,
+    });
+  });
+
+  it('rejects a 200 non-object JSON body with ERR_UNEXPECTED_RESPONSE', async () => {
+    const { impl } = stubFetch(() => new Response('false', { status: 200 }));
+    await expect(makeClient(impl).queryTwoBits('dGVzdA==')).rejects.toMatchObject({
+      code: 'ERR_UNEXPECTED_RESPONSE',
+    });
+  });
+
+  it('rejects a 200 bits body missing last_update_time with ERR_UNEXPECTED_RESPONSE', async () => {
+    const { impl } = stubFetch(
+      () => new Response(JSON.stringify({ bit0: true, bit1: false }), { status: 200 })
+    );
+    await expect(makeClient(impl).queryTwoBits('dGVzdA==')).rejects.toMatchObject({
+      code: 'ERR_UNEXPECTED_RESPONSE',
+    });
+  });
+
+  it('rejects unrecognized 200 text bodies with ERR_UNEXPECTED_RESPONSE instead of found: false', async () => {
+    const { impl } = stubFetch(() => new Response('Service maintenance page', { status: 200 }));
+    await expect(makeClient(impl).queryTwoBits('dGVzdA==')).rejects.toMatchObject({
+      code: 'ERR_UNEXPECTED_RESPONSE',
+    });
+  });
+});
+
+describe('network failures', () => {
+  it('wraps fetch rejections in DeviceCheckServerError with ERR_NETWORK and cause', async () => {
+    const networkError = new TypeError('fetch failed');
+    const impl = (async () => {
+      throw networkError;
+    }) as unknown as typeof fetch;
+    await expect(makeClient(impl).queryTwoBits('dGVzdA==')).rejects.toMatchObject({
+      name: 'DeviceCheckServerError',
+      code: 'ERR_NETWORK',
+      status: 0,
+      cause: networkError,
+    });
+  });
+});
