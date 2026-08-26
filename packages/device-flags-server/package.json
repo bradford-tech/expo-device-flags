@@ -43,10 +43,10 @@
   "homepage": "https://github.com/bradford-tech/expo-device-flags/tree/main/packages/device-flags-server#readme",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.2.0",
     "eslint": "~9.39.4",
     "eslint-config-universe": "^15.2.0",
     "typescript": "~6.0.3",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
